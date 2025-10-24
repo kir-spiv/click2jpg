@@ -48,6 +48,8 @@ async fn convert_images_to_jpeg(
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    libheif_rs::integration::image::register_all_decoding_hooks();
+
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())

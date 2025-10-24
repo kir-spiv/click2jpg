@@ -24,4 +24,8 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tauri-plugin-dialog = "2"
 image = { version = "0.25.8", features = ["jpeg"] }
+libheif-rs = { version = "2.5.1", features = ["image", "latest"] }
 
+[package.metadata.vcpkg]
+git = "https://github.com/microsoft/vcpkg"
+branch = "master" 

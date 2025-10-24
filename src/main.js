@@ -1,7 +1,7 @@
 const { open } = window.__TAURI__.dialog;
 const { getCurrentWebview } = window.__TAURI__.webview;
 
-const SUPPORTED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp']
+const SUPPORTED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'heic', 'heif']
 
 const dropArea = document.getElementById('dropArea');
 const convertBtn = document.getElementById('convertBtn');
