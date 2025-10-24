@@ -1,6 +1,8 @@
 const { open } = window.__TAURI__.dialog;
 const { getCurrentWebview } = window.__TAURI__.webview;
 
+const SUPPORTED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp']
+
 const dropArea = document.getElementById('dropArea');
 const convertBtn = document.getElementById('convertBtn');
 const statusEl = document.getElementById('status');
@@ -11,7 +13,7 @@ let outputDir = null;
 dropArea.addEventListener('click', async () => {
   const paths = await open({
     multiple: true,
-    filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'] }]
+    filters: [{ name: 'Images', extensions: SUPPORTED_EXTENSIONS }]
   });
   if (paths) {
     selectedPaths = Array.isArray(paths) ? paths : [paths];
@@ -81,5 +83,6 @@ convertBtn.addEventListener('click', async () => {
     statusEl.textContent = 'Ошибка: ' + (err.message || err);
   } finally {
     convertBtn.disabled = false;
+    outputDir = null;
   }
 });
