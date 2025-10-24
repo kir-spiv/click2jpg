@@ -1,52 +1,46 @@
 use std::path::PathBuf;
 
+use tauri::Emitter;
+
 #[tauri::command]
-async fn convert_images_to_jpeg(paths: Vec<String>) -> Result<Vec<String>, String> {
+async fn convert_images_to_jpeg(
+    app_handle: tauri::AppHandle,
+    paths: Vec<String>,
+    output_dir: String,
+) -> Result<Vec<String>, String> {
+    let output_path = PathBuf::from(&output_dir);
+    if !output_path.exists() {
+        std::fs::create_dir_all(&output_path)
+            .map_err(|e| format!("Не удалось создать папку {}: {}", output_dir, e))?;
+    }
     let mut output_paths = Vec::new();
 
-    for path_str in paths {
+    for (i, path_str) in paths.iter().enumerate() {
         let input_path = PathBuf::from(path_str);
         if !input_path.exists() {
             continue;
         }
 
-        let img = match image::open(&input_path) {
-            Ok(img) => img,
-            Err(e) => {
-                return Err(format!(
-                    "Не удалось открыть {}: {}",
-                    input_path.display(),
-                    e
-                ))
-            }
-        };
-
-        let mut output_path = input_path.clone();
-        output_path.set_extension("jpg");
-
-        let mut counter = 1;
-        let original_stem = output_path
+        let img = image::open(&input_path)
+            .map_err(|e| format!("Не удалось открыть {}: {}", path_str, e))?;
+        let file_name = input_path
             .file_stem()
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .to_string();
-        while output_path.exists() {
-            let mut new_stem = original_stem.clone();
-            new_stem.push_str(&format!("_{}", counter));
-            output_path.set_file_name(new_stem);
-            output_path.set_extension("jpg");
+            .and_then(|s| s.to_str())
+            .unwrap_or("image");
+        let mut output_file = output_path.join(format!("{}.jpg", file_name));
+        let mut counter = 1;
+        let original_stem = file_name.to_string();
+        while output_file.exists() {
+            output_file = output_path.join(format!("{}_{}.jpg", original_stem, counter));
             counter += 1;
         }
-        if let Err(e) = img.save_with_format(&output_path, image::ImageFormat::Jpeg) {
-            return Err(format!(
-                "Не удалось сохранить {}: {}",
-                output_path.display(),
-                e
-            ));
-        }
-
-        output_paths.push(output_path.to_string_lossy().into_owned());
+        img.save_with_format(&output_file, image::ImageFormat::Jpeg)
+            .map_err(|e| format!("Не удалось сохранить {}: {}", output_file.display(), e))?;
+        output_paths.push(output_file.to_string_lossy().into_owned());
+        let progress = format!("{}/{}", i + 1, paths.len());
+        app_handle
+            .emit("conversion_progress", &progress)
+            .unwrap_or(());
     }
 
     Ok(output_paths)

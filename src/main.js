@@ -6,6 +6,7 @@ const convertBtn = document.getElementById('convertBtn');
 const statusEl = document.getElementById('status');
 
 let selectedPaths = [];
+let outputDir = null;
 
 dropArea.addEventListener('click', async () => {
   const paths = await open({
@@ -46,12 +47,32 @@ function updateUI() {
 convertBtn.addEventListener('click', async () => {
   if (selectedPaths.length === 0) return;
 
+  if (!outputDir) {
+    const dir = await window.__TAURI__.dialog.open(
+      {
+        directory: true,
+        multiple: false
+      }
+    )
+    if (!dir) {
+      statusEl.textContent = "Отменено: папка не выбрана";
+      return;
+    }
+
+    outputDir = dir;
+  }
+
+  window.__TAURI__.event.listen('conversion_progress', (event) => {
+    statusEl.textContent = `Конвертация... ${event.payload}`;
+  });
+
   statusEl.textContent = 'Конвертация...';
   convertBtn.disabled = true;
 
   try {
     const result = await window.__TAURI__.core.invoke('convert_images_to_jpeg', {
-      paths: selectedPaths
+      paths: selectedPaths,
+      outputDir: outputDir
     });
     statusEl.textContent = `Готово! Сохранено файлов: ${result.length}`;
     console.log('Результат:', result);
