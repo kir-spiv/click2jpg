@@ -43,7 +43,22 @@ function updateUI() {
   }
 }
 
-convertBtn.addEventListener('click', () => {
-  console.log('Файлы:', selectedPaths);
+convertBtn.addEventListener('click', async () => {
+  if (selectedPaths.length === 0) return;
+
   statusEl.textContent = 'Конвертация...';
+  convertBtn.disabled = true;
+
+  try {
+    const result = await window.__TAURI__.core.invoke('convert_images_to_jpeg', {
+      paths: selectedPaths
+    });
+    statusEl.textContent = `Готово! Сохранено файлов: ${result.length}`;
+    console.log('Результат:', result);
+  } catch (err) {
+    console.error('Ошибка:', err);
+    statusEl.textContent = 'Ошибка: ' + (err.message || err);
+  } finally {
+    convertBtn.disabled = false;
+  }
 });
