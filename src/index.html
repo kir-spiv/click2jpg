@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 
 <head>
   <meta charset="UTF-8" />
@@ -11,17 +11,24 @@
 
 <body>
   <main class="container">
-    <h1>Image to JPEG Converter</h1>
+    <h1>🐰 Конвертер в JPEG</h1>
 
     <div class="dropArea" id="dropArea">
-      <p>Перетащите изображение сюда</p>
-      <p>или нажмите для выбора файлов</p>
-      <input type="file" id="fileInput" accept="image/*" multiple hidden />
+      <svg class="bunny-icon" viewBox="0 0 100 100" width="64" height="64">
+        <circle cx="50" cy="40" r="20" fill="#d0ecf8" />
+        <circle cx="40" cy="35" r="4" fill="#3a5a6a" />
+        <circle cx="60" cy="35" r="4" fill="#3a5a6a" />
+        <path d="M45 50 Q50 55 55 50" stroke="#3a5a6a" stroke-width="2" fill="none" />
+        <path d="M30 25 Q35 10 45 20" fill="#d0ecf8" stroke="#b3d9e8" stroke-width="2" />
+        <path d="M70 25 Q65 10 55 20" fill="#d0ecf8" stroke="#b3d9e8" stroke-width="2" />
+      </svg>
+      <p>Перетащите изображения сюда</p>
+      <p>или нажмите, чтобы выбрать</p>
     </div>
 
     <div id="status">Статус: Готово к конвертации</div>
 
-    <button id="convertBtn" disabled>Конвертировать</button>
+    <button id="convertBtn" disabled>✨ Конвертировать в JPEG</button>
   </main>
 </body>
 
