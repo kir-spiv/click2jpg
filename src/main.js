@@ -1,11 +1,25 @@
 const { open } = window.__TAURI__.dialog;
 const { getCurrentWebview } = window.__TAURI__.webview;
 
-const SUPPORTED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'heic', 'heif']
+let SUPPORTED_EXTENSIONS = [];
 
 const dropArea = document.getElementById('dropArea');
 const convertBtn = document.getElementById('convertBtn');
 const statusEl = document.getElementById('status');
+const formatsEl = document.getElementById('supportedFormats');
+
+window.__TAURI__.core.invoke('get_supported_formats')
+  .then(formats => {
+    SUPPORTED_EXTENSIONS = formats;
+    if (formatsEl) {
+      const display = formats.join(', ').toUpperCase();
+      formatsEl.textContent = `Поддерживаемые форматы: ${display}`;
+    }
+  })
+  .catch(err => {
+    console.warn('Не удалось загрузить список форматов:', err);
+    if (formatsEl) formatsEl.textContent = 'Поддерживаемые форматы: PNG, JPG, GIF, BMP, WEBP и др.';
+  });
 
 let selectedPaths = [];
 let outputDir = null;
@@ -13,7 +27,7 @@ let outputDir = null;
 dropArea.addEventListener('click', async () => {
   const paths = await open({
     multiple: true,
-    filters: [{ name: 'Images', extensions: SUPPORTED_EXTENSIONS }]
+    filters: [{ name: 'Изображения', extensions: SUPPORTED_EXTENSIONS }]
   });
   if (paths) {
     selectedPaths = Array.isArray(paths) ? paths : [paths];

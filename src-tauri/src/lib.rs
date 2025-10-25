@@ -2,6 +2,13 @@ use std::path::PathBuf;
 
 use tauri::Emitter;
 
+const SUPPORTED_EXTENSIONS: &[&str] = &["png", "jpg", "jpeg", "gif", "bmp", "webp", "heic", "heif"];
+
+#[tauri::command]
+async fn get_supported_formats() -> Vec<String> {
+    SUPPORTED_EXTENSIONS.iter().map(|s| s.to_string()).collect()
+}
+
 #[tauri::command]
 async fn convert_images_to_jpeg(
     app_handle: tauri::AppHandle,
@@ -53,7 +60,10 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![convert_images_to_jpeg])
+        .invoke_handler(tauri::generate_handler![
+            convert_images_to_jpeg,
+            get_supported_formats
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
